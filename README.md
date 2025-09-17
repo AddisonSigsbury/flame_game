@@ -2,4 +2,4 @@
 
 A Flutter project for the Klondike Solitaire game.
 
-My name is Addison Sigsbury, and I am expecting a B because I did sections 1-4.
+My name is Addison Sigsbury, and I am expecting a A because I did sections 1-5.

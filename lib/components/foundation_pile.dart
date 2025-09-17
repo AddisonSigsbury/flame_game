@@ -1,19 +1,29 @@
-import 'package:flame/components.dart';
-import '../klondike_game.dart';
-import 'card.dart';
-import '../suit.dart';
 import 'dart:ui';
+
+import 'package:flame/components.dart';
+
+import '../klondike_game.dart';
 import '../pile.dart';
+import '../suit.dart';
+import 'card.dart';
 
 class FoundationPile extends PositionComponent implements Pile {
-  FoundationPile(int intSuit, {super.position})
-      : suit = Suit.fromInt(intSuit),
-        super(size: KlondikeGame.cardSize);
+  FoundationPile(int intSuit, this.checkWin, {super.position})
+    : suit = Suit.fromInt(intSuit),
+      super(size: KlondikeGame.cardSize);
+
+  final VoidCallback checkWin;
 
   final Suit suit;
   final List<Card> _cards = [];
+
+  //#region Pile API
+
+  bool get isFull => _cards.length == 13;
+
   @override
-  //bool canMoveCard(Card card) => _cards.isNotEmpty && card == _cards.last;
+  bool canMoveCard(Card card, MoveMethod method) =>
+      _cards.isNotEmpty && card == _cards.last && method != MoveMethod.tap;
 
   @override
   bool canAcceptCard(Card card) {
@@ -24,13 +34,8 @@ class FoundationPile extends PositionComponent implements Pile {
   }
 
   @override
-  bool canMoveCard(Card card) {
-   return _cards.isNotEmpty && card == _cards.last;
-  }
-
-  @override
-  void removeCard(Card card) {
-    assert(canMoveCard(card));
+  void removeCard(Card card, MoveMethod method) {
+    assert(canMoveCard(card, method));
     _cards.removeLast();
   }
 
@@ -47,9 +52,14 @@ class FoundationPile extends PositionComponent implements Pile {
     card.priority = _cards.length;
     card.pile = this;
     _cards.add(card);
-
-    card.pile= this;
+    if (isFull) {
+      checkWin(); // Get KlondikeWorld to check all FoundationPiles.
+    }
   }
+
+  //#endregion
+
+  //#region Rendering
 
   final _borderPaint = Paint()
     ..style = PaintingStyle.stroke
@@ -70,4 +80,6 @@ class FoundationPile extends PositionComponent implements Pile {
       overridePaint: _suitPaint,
     );
   }
+
+  //#endregion
 }
